@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureBank — Loans</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .loan-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+    .loan-type-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .loan-type-card:hover, .loan-type-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    .loan-type-card .icon { font-size: 1.75rem; margin-bottom: .5rem; }
+    .loan-type-card .label { font-size: .8rem; font-weight: 700; }
+
+    .repay-form { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem; }
+  </style>
+</head>
+<body class="page-wrapper">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-icon">🏦</div>
+      Secure<span>Bank</span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="transactions.html" class="nav-link"><span class="nav-icon">💸</span> Transactions</a></li>
+      <li><a href="transfer.html" class="nav-link"><span class="nav-icon">↔️</span> Transfer</a></li>
+      <li><a href="loans.html" class="nav-link"><span class="nav-icon">🏛️</span> Loans</a></li>
+      <li><a href="statements.html" class="nav-link"><span class="nav-icon">📄</span> Statements</a></li>
+      <li><a href="profile.html" class="nav-link"><span class="nav-icon">👤</span> Profile</a></li>
+      <li id="adminNavItem" class="hidden"><a href="admin.html" class="nav-link"><span class="nav-icon">⚙️</span> Admin</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="navAvatar">U</div>
+        <span class="nav-user-name" id="navUserName">User</span>
+      </div>
+      <button class="btn btn-ghost btn-sm logout-btn" style="color:#aaa;">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="page-title">
+      <div class="page-title-icon">🏛️</div>
+      Loans
+    </div>
+    <p class="page-subtitle">Manage your loans and financing</p>
+  </div>
+
+  <div class="content-grid">
+    <!-- LEFT: Apply for Loan -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Apply for a Loan</div>
+        </div>
+        <div class="card-body">
+          <div id="loanApplyAlert"></div>
+
+          <!-- Loan Type Selector -->
+          <div class="form-group">
+            <label class="form-label">Loan Type <span class="required">*</span></label>
+            <div class="loan-type-grid" id="loanTypeGrid">
+              <div class="loan-type-card" data-type="PERSONAL" onclick="selectLoanType(this)">
+                <div class="icon">👤</div>
+                <div class="label">Personal</div>
+              </div>
+              <div class="loan-type-card" data-type="HOME" onclick="selectLoanType(this)">
+                <div class="icon">🏠</div>
+                <div class="label">Home</div>
+              </div>
+              <div class="loan-type-card" data-type="AUTO" onclick="selectLoanType(this)">
+                <div class="icon">🚗</div>
+                <div class="label">Auto</div>
+              </div>
+              <div class="loan-type-card" data-type="EDUCATION" onclick="selectLoanType(this)">
+                <div class="icon">🎓</div>
+                <div class="label">Education</div>
+              </div>
+              <div class="loan-type-card" data-type="BUSINESS" onclick="selectLoanType(this)">
+                <div class="icon">💼</div>
+                <div class="label">Business</div>
+              </div>
+            </div>
+            <input type="hidden" id="selectedLoanType" />
+          </div>
+
+          <form id="loanApplyForm" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="loanAccount">Disbursement Account <span class="required">*</span></label>
+              <select class="form-control" id="loanAccount">
+                <option value="">Loading accounts…</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="loanAmount">Loan Amount <span class="required">*</span></label>
+                <div class="input-group">
+                  <span class="form-control" style="max-width:3rem;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--bg);text-align:center;flex:0;">$</span>
+                  <input type="number" class="form-control" id="loanAmount" placeholder="0.00" min="100" step="100"
+                         style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="loanTerm">Term (Months) <span class="required">*</span></label>
+                <select class="form-control" id="loanTerm">
+                  <option value="">Select term</option>
+                  <option value="12">12 months (1 year)</option>
+                  <option value="24">24 months (2 years)</option>
+                  <option value="36">36 months (3 years)</option>
+                  <option value="48">48 months (4 years)</option>
+                  <option value="60">60 months (5 years)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="loanPurpose">Purpose / Description <span class="required">*</span></label>
+              <textarea class="form-control" id="loanPurpose" rows="3"
+                        placeholder="Describe the purpose of this loan…" style="resize:vertical;"></textarea>
+            </div>
+
+            <!-- Estimated Payment Preview -->
+            <div id="loanEstimate" class="hidden mb-4">
+              <div style="background:var(--primary-light);border-radius:var(--radius);padding:1rem;border:1px solid var(--primary);">
+                <div class="section-title" style="font-size:.85rem;color:var(--primary);">📊 Estimated Loan Details</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+                  <div>
+                    <div style="font-size:.75rem;color:var(--text-muted);">Monthly Payment</div>
+                    <div style="font-weight:700;color:var(--primary);" id="estMonthly">—</div>
+                  </div>
+                  <div>
+                    <div style="font-size:.75rem;color:var(--text-muted);">Total Interest</div>
+                    <div style="font-weight:700;" id="estInterest">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="loanApplyResult"></div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="loanApplyBtn">
+              🏛️ Submit Loan Application
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Existing Loans -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📂 My Loans</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadLoans()">🔃 Refresh</button>
+        </div>
+        <div class="card-body" id="loansList">
+          <div class="empty-state">
+            <div class="empty-state-icon">🏛️</div>
+            <p>Loading your loans…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Repay Modal -->
+<div id="repayModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💳 Make Loan Repayment</div>
+      <button class="modal-close" onclick="closeRepayModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="repayAlert"></div>
+      <div class="form-group">
+        <label class="form-label">Loan</label>
+        <div id="repayLoanInfo" class="form-control" style="background:var(--bg);cursor:default;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Payment Account</label>
+        <select class="form-control" id="repayAccount">
+          <option value="">Select account to debit</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="repayAmount">Payment Amount <span class="required">*</span></label>
+        <div class="input-group">
+          <span class="form-control" style="max-width:3rem;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--bg);text-align:center;flex:0;">$</span>
+          <input type="number" class="form-control" id="repayAmount" placeholder="0.00" min="0.01" step="0.01"
+                 style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeRepayModal()">Cancel</button>
+      <button class="btn btn-primary" id="repayBtn" onclick="submitRepayment()">💳 Make Payment</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+  const user = requireAuth();
+  if (!user) throw new Error('Not authenticated');
+
+  if (user.role === 'ADMIN') document.getElementById('adminNavItem').classList.remove('hidden');
+
+  let userAccounts = [];
+  let currentRepayLoanId = null;
+
+  async function init() {
+    userAccounts = await loadUserAccounts('loanAccount', user.id);
+    await loadLoans();
+  }
+
+  function selectLoanType(card) {
+    document.querySelectorAll('.loan-type-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('selectedLoanType').value = card.dataset.type;
+  }
+
+  // Calculate estimate when amount/term changes
+  ['loanAmount', 'loanTerm'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateEstimate);
+    document.getElementById(id).addEventListener('change', updateEstimate);
+  });
+
+  function updateEstimate() {
+    const amount = parseFloat(document.getElementById('loanAmount').value);
+    const term = parseInt(document.getElementById('loanTerm').value);
+    const estimate = document.getElementById('loanEstimate');
+
+    if (amount > 0 && term > 0) {
+      const rate = 0.08 / 12; // 8% annual rate (estimated)
+      const monthly = (amount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+      const totalInterest = (monthly * term) - amount;
+      document.getElementById('estMonthly').textContent = formatCurrency(monthly);
+      document.getElementById('estInterest').textContent = formatCurrency(totalInterest);
+      estimate.classList.remove('hidden');
+    } else {
+      estimate.classList.add('hidden');
+    }
+  }
+
+  async function loadLoans() {
+    const container = document.getElementById('loansList');
+    container.innerHTML = '<div class="text-center" style="padding:1rem"><span class="spinner spinner-dark"></span></div>';
+
+    try {
+      // Get all loans across all accounts
+      const allLoans = [];
+      for (const acc of userAccounts) {
+        try {
+          const loans = await makeRequest('GET', `/api/loans/account/${acc.id}`);
+          if (Array.isArray(loans)) allLoans.push(...loans);
+        } catch {}
+      }
+
+      if (allLoans.length === 0) {
+        container.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon">🏛️</div>
+          <h3>No Loans</h3>
+          <p>You haven't applied for any loans yet.</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = allLoans.map(loan => {
+        const progress = loan.loanAmount > 0
+          ? Math.min(100, Math.round(((loan.loanAmount - (loan.outstandingBalance || loan.loanAmount)) / loan.loanAmount) * 100))
+          : 0;
+        const canRepay = ['ACTIVE', 'APPROVED'].includes(loan.status);
+        return `<div class="loan-card mb-4">
+          <div class="loan-header">
+            <div>
+              <div class="loan-type">${getLoanTypeIcon(loan.loanType)} ${loan.loanType || 'Loan'}</div>
+              <div class="loan-meta">Applied: ${formatDate(loan.applicationDate || loan.createdAt)}</div>
+            </div>
+            ${getLoanStatusBadge(loan.status)}
+          </div>
+          ${loan.purpose ? `<p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:.75rem;">${loan.purpose}</p>` : ''}
+          <div class="loan-details">
+            <div class="loan-detail-item">
+              <div class="loan-detail-label">Loan Amount</div>
+              <div class="loan-detail-value">${formatCurrency(loan.loanAmount)}</div>
+            </div>
+            <div class="loan-detail-item">
+              <div class="loan-detail-label">Outstanding</div>
+              <div class="loan-detail-value text-danger">${formatCurrency(loan.outstandingBalance)}</div>
+            </div>
+            <div class="loan-detail-item">
+              <div class="loan-detail-label">Monthly Payment</div>
+              <div class="loan-detail-value">${formatCurrency(loan.monthlyPayment)}</div>
+            </div>
+          </div>
+          ${canRepay ? `
+          <div class="loan-progress mt-3">
+            <div class="loan-progress-bar" style="width:${progress}%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;">
+            <span style="font-size:.75rem;color:var(--text-muted);">${progress}% repaid · Term: ${loan.termMonths} months</span>
+            <button class="btn btn-primary btn-sm" onclick="openRepayModal(${loan.id}, '${loan.loanType}', ${loan.outstandingBalance || 0}, ${loan.monthlyPayment || 0})">
+              💳 Repay
+            </button>
+          </div>` : ''}
+        </div>`;
+      }).join('');
+    } catch (e) {
+      container.innerHTML = `<div class="alert alert-danger">Failed to load loans: ${e.message}</div>`;
+    }
+  }
+
+  function getLoanTypeIcon(type) {
+    const icons = { PERSONAL: '👤', HOME: '🏠', AUTO: '🚗', EDUCATION: '🎓', BUSINESS: '💼' };
+    return icons[type] || '🏛️';
+  }
+
+  function openRepayModal(loanId, loanType, outstanding, monthly) {
+    currentRepayLoanId = loanId;
+    document.getElementById('repayLoanInfo').textContent =
+      `${loanType} Loan — Outstanding: ${formatCurrency(outstanding)}`;
+    document.getElementById('repayAmount').value = monthly > 0 ? monthly.toFixed(2) : '';
+    clearAlert('repayAlert');
+
+    // Populate repay account select
+    const sel = document.getElementById('repayAccount');
+    sel.innerHTML = '<option value="">Select account</option>';
+    userAccounts.forEach(acc => {
+      const opt = document.createElement('option');
+      opt.value = acc.id;
+      opt.textContent = `${acc.accountType} — ${formatAccountNumber(acc.accountNumber)} (${formatCurrency(acc.balance)})`;
+      sel.appendChild(opt);
+    });
+
+    document.getElementById('repayModal').classList.remove('hidden');
+  }
+
+  function closeRepayModal() {
+    document.getElementById('repayModal').classList.add('hidden');
+    currentRepayLoanId = null;
+  }
+
+  async function submitRepayment() {
+    clearAlert('repayAlert');
+    const accountId = document.getElementById('repayAccount').value;
+    const amount = parseFloat(document.getElementById('repayAmount').value);
+
+    if (!accountId) { showAlert('repayAlert', 'Please select a payment account.', 'warning'); return; }
+    if (!amount || amount <= 0) { showAlert('repayAlert', 'Please enter a valid payment amount.', 'warning'); return; }
+    if (!currentRepayLoanId) return;
+
+    setLoading('repayBtn', true, 'Processing…');
+    try {
+      await makeRequest('POST', `/api/loans/${currentRepayLoanId}/repay`, { accountId, amount });
+      closeRepayModal();
+      showAlert('loanApplyAlert', `✅ Loan repayment of ${formatCurrency(amount)} was successful!`, 'success');
+      loadLoans();
+    } catch (err) {
+      showAlert('repayAlert', `Repayment failed: ${err.message}`, 'danger');
+      setLoading('repayBtn', false);
+    }
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('repayModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRepayModal();
+  });
+
+  document.getElementById('loanApplyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('loanApplyAlert');
+    clearAlert('loanApplyResult');
+
+    const loanType = document.getElementById('selectedLoanType').value;
+    const accountId = document.getElementById('loanAccount').value;
+    const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+    const termMonths = parseInt(document.getElementById('loanTerm').value);
+    const purpose = document.getElementById('loanPurpose').value.trim();
+
+    if (!loanType) { showAlert('loanApplyAlert', 'Please select a loan type.', 'warning'); return; }
+    if (!accountId) { showAlert('loanApplyAlert', 'Please select a disbursement account.', 'warning'); return; }
+    if (!loanAmount || loanAmount < 100) { showAlert('loanApplyAlert', 'Please enter a valid loan amount (minimum $100).', 'warning'); return; }
+    if (!termMonths) { showAlert('loanApplyAlert', 'Please select a loan term.', 'warning'); return; }
+    if (!purpose) { showAlert('loanApplyAlert', 'Please describe the purpose of this loan.', 'warning'); return; }
+
+    setLoading('loanApplyBtn', true, 'Submitting application…');
+    try {
+      const result = await makeRequest('POST', '/api/loans/apply', {
+        accountId: parseInt(accountId),
+        loanType,
+        loanAmount,
+        termMonths,
+        purpose
+      });
+      showAlert('loanApplyResult',
+        `✅ Loan application submitted successfully! Application ID: ${result.id || '—'}. Status: ${result.status || 'PENDING'}`,
+        'success'
+      );
+      document.getElementById('loanApplyForm').reset();
+      document.getElementById('selectedLoanType').value = '';
+      document.querySelectorAll('.loan-type-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('loanEstimate').classList.add('hidden');
+      loadLoans();
+    } catch (err) {
+      showAlert('loanApplyAlert', `Application failed: ${err.message}`, 'danger');
+    } finally {
+      setLoading('loanApplyBtn', false);
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

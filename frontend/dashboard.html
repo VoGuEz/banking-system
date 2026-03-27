@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureBank — Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .welcome-bar {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 2rem;
+      color: #fff;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-bar::after {
+      content: '🏦';
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 5rem;
+      opacity: 0.12;
+    }
+    .welcome-bar h2 { font-size: 1.5rem; color: #fff; margin-bottom: .3rem; }
+    .welcome-bar p { color: rgba(255,255,255,.8); font-size: .9rem; }
+    .welcome-bar .total-balance { text-align: right; }
+    .welcome-bar .balance-label { font-size: .8rem; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .5px; }
+    .welcome-bar .balance-amount { font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -1px; }
+
+    .quick-actions { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+    .quick-action {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: .75rem 1.25rem;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .quick-action:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: var(--shadow-card);
+      transform: translateY(-1px);
+    }
+    .quick-action .qa-icon { font-size: 1.25rem; }
+
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
+    }
+    .section-header h3 { font-size: 1.1rem; font-weight: 700; }
+  </style>
+</head>
+<body class="page-wrapper">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-icon">🏦</div>
+      Secure<span>Bank</span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="transactions.html" class="nav-link"><span class="nav-icon">💸</span> Transactions</a></li>
+      <li><a href="transfer.html" class="nav-link"><span class="nav-icon">↔️</span> Transfer</a></li>
+      <li><a href="loans.html" class="nav-link"><span class="nav-icon">🏛️</span> Loans</a></li>
+      <li><a href="statements.html" class="nav-link"><span class="nav-icon">📄</span> Statements</a></li>
+      <li><a href="profile.html" class="nav-link"><span class="nav-icon">👤</span> Profile</a></li>
+      <li id="adminNavItem" class="hidden"><a href="admin.html" class="nav-link"><span class="nav-icon">⚙️</span> Admin</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="navAvatar">U</div>
+        <span class="nav-user-name" id="navUserName">User</span>
+      </div>
+      <button class="btn btn-ghost btn-sm logout-btn" style="color:#aaa;">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+  <!-- Welcome Bar -->
+  <div class="welcome-bar">
+    <div>
+      <h2 id="welcomeMsg">Welcome back!</h2>
+      <p id="welcomeSub">Here's your financial overview</p>
+    </div>
+    <div class="total-balance">
+      <div class="balance-label">Total Balance</div>
+      <div class="balance-amount" id="totalBalance">—</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <div class="stat-icon blue">🏦</div>
+      <div class="stat-info">
+        <div class="stat-label">Total Accounts</div>
+        <div class="stat-value" id="totalAccounts">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">💰</div>
+      <div class="stat-info">
+        <div class="stat-label">Total Deposits</div>
+        <div class="stat-value" id="totalDeposits">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon yellow">🏛️</div>
+      <div class="stat-info">
+        <div class="stat-label">Active Loans</div>
+        <div class="stat-value" id="activeLoans">—</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon teal">📊</div>
+      <div class="stat-info">
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value" id="totalTxns">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <a href="transactions.html" class="quick-action"><span class="qa-icon">⬇️</span> Deposit</a>
+    <a href="transactions.html" class="quick-action"><span class="qa-icon">⬆️</span> Withdraw</a>
+    <a href="transfer.html" class="quick-action"><span class="qa-icon">↔️</span> Transfer</a>
+    <a href="loans.html" class="quick-action"><span class="qa-icon">🏛️</span> Apply for Loan</a>
+    <a href="statements.html" class="quick-action"><span class="qa-icon">📄</span> View Statements</a>
+  </div>
+
+  <!-- Accounts & Transactions -->
+  <div class="content-grid">
+    <!-- Accounts -->
+    <div>
+      <div class="section-header">
+        <h3>💳 My Accounts</h3>
+        <a href="statements.html" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div id="accountsList">
+        <div class="empty-state"><div class="empty-state-icon">💳</div><p>Loading accounts…</p></div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div>
+      <div class="section-header">
+        <h3>🔄 Recent Transactions</h3>
+        <a href="statements.html" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div class="card">
+        <div class="card-body" id="recentTxns">
+          <div class="empty-state"><div class="empty-state-icon">🔄</div><p>Loading…</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loans Summary -->
+  <div style="margin-top:1.75rem;">
+    <div class="section-header">
+      <h3>🏛️ My Loans</h3>
+      <a href="loans.html" class="btn btn-outline btn-sm">Manage Loans</a>
+    </div>
+    <div id="loansList">
+      <div class="empty-state"><div class="empty-state-icon">🏛️</div><p>Loading loans…</p></div>
+    </div>
+  </div>
+</main>
+
+<script src="js/script.js"></script>
+<script>
+  const user = requireAuth();
+  if (!user) throw new Error('Not authenticated');
+
+  // Show admin nav if admin
+  if (user.role === 'ADMIN') {
+    document.getElementById('adminNavItem').classList.remove('hidden');
+  }
+
+  // Welcome message
+  document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.firstName}! 👋`;
+  document.getElementById('welcomeSub').textContent =
+    `Member since ${formatDate(user.createdAt || new Date())} · ${user.role || 'Customer'}`;
+
+  async function loadDashboard() {
+    try {
+      // Load accounts
+      const accounts = await makeRequest('GET', `/api/accounts/user/${user.id}`);
+      renderAccounts(accounts);
+
+      // Load transactions for all accounts
+      const allTxns = [];
+      let txnCount = 0;
+      let totalDeposited = 0;
+      for (const acc of accounts) {
+        try {
+          const txns = await makeRequest('GET', `/api/transactions/account/${acc.id}`);
+          if (Array.isArray(txns)) {
+            txnCount += txns.length;
+            txns.forEach(t => {
+              if (t.type === 'DEPOSIT') totalDeposited += t.amount || 0;
+              allTxns.push({ ...t, accountNumber: acc.accountNumber });
+            });
+          }
+        } catch {}
+      }
+
+      // Sort by date desc
+      allTxns.sort((a, b) => new Date(b.transactionDate || b.createdAt || 0) - new Date(a.transactionDate || a.createdAt || 0));
+      renderRecentTransactions(allTxns.slice(0, 5));
+
+      // Stats
+      const totalBalance = accounts.reduce((s, a) => s + (a.balance || 0), 0);
+      document.getElementById('totalBalance').textContent = formatCurrency(totalBalance);
+      document.getElementById('totalAccounts').textContent = accounts.length;
+      document.getElementById('totalDeposits').textContent = formatCurrency(totalDeposited);
+      document.getElementById('totalTxns').textContent = txnCount;
+
+      // Load loans
+      const loanPromises = accounts.map(acc =>
+        makeRequest('GET', `/api/loans/account/${acc.id}`).catch(() => [])
+      );
+      const loansArrays = await Promise.all(loanPromises);
+      const allLoans = loansArrays.flat();
+      renderLoans(allLoans);
+      const activeLoans = allLoans.filter(l => l.status === 'ACTIVE' || l.status === 'APPROVED').length;
+      document.getElementById('activeLoans').textContent = activeLoans;
+
+    } catch (err) {
+      document.getElementById('accountsList').innerHTML =
+        `<div class="alert alert-danger">Failed to load data: ${err.message}</div>`;
+    }
+  }
+
+  function renderAccounts(accounts) {
+    const container = document.getElementById('accountsList');
+    if (!accounts || accounts.length === 0) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-state-icon">💳</div>
+        <h3>No Accounts</h3>
+        <p>You don't have any accounts yet.</p>
+      </div>`;
+      return;
+    }
+    const typeClass = { SAVINGS: 'savings', CHECKING: 'checking', BUSINESS: 'business' };
+    container.innerHTML = `<div class="accounts-grid">
+      ${accounts.map(acc => `
+        <div class="account-card ${typeClass[acc.accountType] || ''}">
+          <div class="account-type-badge">${acc.accountType || 'Account'}</div>
+          <div class="account-number">${formatAccountNumber(acc.accountNumber)}</div>
+          <div class="account-balance-label">Available Balance</div>
+          <div class="account-balance">${formatCurrency(acc.balance)}</div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  function renderRecentTransactions(txns) {
+    const container = document.getElementById('recentTxns');
+    if (!txns || txns.length === 0) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-state-icon">🔄</div>
+        <p>No recent transactions.</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = txns.map(t => {
+      const cls = getTransactionClass(t.type);
+      const sign = cls === 'credit' ? '+' : '-';
+      return `<div class="transaction-item">
+        <div class="txn-icon ${cls}">${getTransactionIcon(t.type)}</div>
+        <div class="txn-info">
+          <div class="txn-desc">${t.description || t.type || 'Transaction'}</div>
+          <div class="txn-date">${formatDateTime(t.transactionDate || t.createdAt)}</div>
+        </div>
+        <div class="txn-amount ${cls}">${sign}${formatCurrency(t.amount)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderLoans(loans) {
+    const container = document.getElementById('loansList');
+    if (!loans || loans.length === 0) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-state-icon">🏛️</div>
+        <p>No loans found. <a href="loans.html">Apply for a loan</a></p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = `<div class="accounts-grid">
+      ${loans.slice(0, 4).map(loan => {
+        const progress = loan.loanAmount > 0
+          ? Math.round(((loan.loanAmount - (loan.outstandingBalance || loan.loanAmount)) / loan.loanAmount) * 100)
+          : 0;
+        return `<div class="loan-card">
+          <div class="loan-header">
+            <div>
+              <div class="loan-type">${loan.loanType || 'Loan'}</div>
+              <div class="loan-meta">Term: ${loan.termMonths || '—'} months</div>
+            </div>
+            ${getLoanStatusBadge(loan.status)}
+          </div>
+          <div class="loan-details">
+            <div class="loan-detail-item">
+              <div class="loan-detail-label">Loan Amount</div>
+              <div class="loan-detail-value">${formatCurrency(loan.loanAmount)}</div>
+            </div>
+            <div class="loan-detail-item">
+              <div class="loan-detail-label">Outstanding</div>
+              <div class="loan-detail-value text-danger">${formatCurrency(loan.outstandingBalance)}</div>
+            </div>
+            <div class="loan-detail-item">
+              <div class="loan-detail-label">Monthly Payment</div>
+              <div class="loan-detail-value">${formatCurrency(loan.monthlyPayment)}</div>
+            </div>
+          </div>
+          <div class="loan-progress mt-3">
+            <div class="loan-progress-bar" style="width:${progress}%"></div>
+          </div>
+          <div class="text-muted" style="font-size:.75rem;margin-top:.25rem;">${progress}% repaid</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

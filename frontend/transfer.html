@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureBank — Fund Transfer</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .transfer-card { max-width: 640px; margin: 0 auto; }
+    .transfer-arrow {
+      text-align: center; padding: 1rem 0; font-size: 2rem; color: var(--primary); line-height: 1;
+    }
+    .account-preview {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .account-preview-icon {
+      width: 44px; height: 44px; background: var(--primary-light); color: var(--primary);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .account-preview-info .label { font-size: .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .account-preview-info .value { font-weight: 700; font-size: .95rem; }
+    .transfer-success {
+      text-align: center; padding: 2rem 1rem;
+    }
+    .transfer-success .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .transfer-success h3 { font-size: 1.4rem; margin-bottom: .5rem; }
+  </style>
+</head>
+<body class="page-wrapper">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-icon">🏦</div>
+      Secure<span>Bank</span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="transactions.html" class="nav-link"><span class="nav-icon">💸</span> Transactions</a></li>
+      <li><a href="transfer.html" class="nav-link"><span class="nav-icon">↔️</span> Transfer</a></li>
+      <li><a href="loans.html" class="nav-link"><span class="nav-icon">🏛️</span> Loans</a></li>
+      <li><a href="statements.html" class="nav-link"><span class="nav-icon">📄</span> Statements</a></li>
+      <li><a href="profile.html" class="nav-link"><span class="nav-icon">👤</span> Profile</a></li>
+      <li id="adminNavItem" class="hidden"><a href="admin.html" class="nav-link"><span class="nav-icon">⚙️</span> Admin</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="navAvatar">U</div>
+        <span class="nav-user-name" id="navUserName">User</span>
+      </div>
+      <button class="btn btn-ghost btn-sm logout-btn" style="color:#aaa;">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="page-title">
+      <div class="page-title-icon">↔️</div>
+      Fund Transfer
+    </div>
+    <p class="page-subtitle">Transfer money between accounts securely</p>
+  </div>
+
+  <div class="transfer-card">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">↔️ New Transfer</div>
+      </div>
+      <div class="card-body" id="transferFormContainer">
+        <div id="transferAlert"></div>
+
+        <form id="transferForm" novalidate>
+          <!-- FROM Account -->
+          <div class="form-group">
+            <label class="form-label" for="fromAccount">From Account <span class="required">*</span></label>
+            <select class="form-control" id="fromAccount">
+              <option value="">Loading your accounts…</option>
+            </select>
+            <div class="form-text" id="fromBalanceDisplay"></div>
+          </div>
+
+          <div class="transfer-arrow">⬇️</div>
+
+          <!-- TO Account -->
+          <div class="form-group">
+            <label class="form-label" for="toAccountNumber">To Account Number <span class="required">*</span></label>
+            <input type="text" class="form-control" id="toAccountNumber"
+                   placeholder="Enter recipient's account number"
+                   autocomplete="off" />
+            <div class="form-text">Enter the full account number of the recipient.</div>
+          </div>
+
+          <!-- Amount -->
+          <div class="form-group">
+            <label class="form-label" for="transferAmount">Amount <span class="required">*</span></label>
+            <div class="input-group">
+              <span class="form-control" style="max-width:3rem;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--bg);text-align:center;flex:0;">$</span>
+              <input type="number" class="form-control" id="transferAmount"
+                     placeholder="0.00" min="0.01" step="0.01"
+                     style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;" />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label class="form-label" for="transferDescription">Description / Note</label>
+            <input type="text" class="form-control" id="transferDescription"
+                   placeholder="e.g. Rent payment, family transfer…" />
+          </div>
+
+          <!-- Preview -->
+          <div id="transferPreview" class="hidden mb-4">
+            <div class="section-title">📋 Transfer Summary</div>
+            <div class="account-preview">
+              <div class="account-preview-icon">💳</div>
+              <div class="account-preview-info">
+                <div class="label">Transfer Amount</div>
+                <div class="value" id="previewAmount">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:.75rem;">
+            <button type="button" class="btn btn-ghost btn-lg" style="flex:1;" onclick="resetForm()">✕ Clear</button>
+            <button type="submit" class="btn btn-primary btn-lg" style="flex:2;" id="transferBtn">
+              ↔️ Transfer Funds
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success State (hidden by default) -->
+      <div class="card-body hidden" id="successContainer">
+        <div class="transfer-success">
+          <div class="success-icon">✅</div>
+          <h3>Transfer Successful!</h3>
+          <p id="successMessage" class="text-secondary mb-6">Your transfer has been processed.</p>
+          <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="resetForm()">↔️ New Transfer</button>
+            <a href="statements.html" class="btn btn-outline">📄 View Statements</a>
+            <a href="dashboard.html" class="btn btn-ghost">🏠 Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer Tips -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <div class="card-title">💡 Transfer Tips</div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.75rem;">
+          <li style="display:flex;gap:.75rem;align-items:flex-start;">
+            <span style="color:var(--primary);font-size:1.1rem;">🔒</span>
+            <div><strong>Secure Transfers</strong><br><span class="text-secondary" style="font-size:.875rem;">All transfers are encrypted and processed instantly.</span></div>
+          </li>
+          <li style="display:flex;gap:.75rem;align-items:flex-start;">
+            <span style="color:var(--warning);font-size:1.1rem;">⚠️</span>
+            <div><strong>Verify Recipient</strong><br><span class="text-secondary" style="font-size:.875rem;">Double-check the account number before confirming. Transfers cannot be reversed.</span></div>
+          </li>
+          <li style="display:flex;gap:.75rem;align-items:flex-start;">
+            <span style="color:var(--success);font-size:1.1rem;">⚡</span>
+            <div><strong>Instant Processing</strong><br><span class="text-secondary" style="font-size:.875rem;">Transfers between SecureBank accounts are processed immediately.</span></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/script.js"></script>
+<script>
+  const user = requireAuth();
+  if (!user) throw new Error('Not authenticated');
+
+  if (user.role === 'ADMIN') document.getElementById('adminNavItem').classList.remove('hidden');
+
+  async function init() {
+    await loadUserAccounts('fromAccount', user.id);
+    const sel = document.getElementById('fromAccount');
+    sel.addEventListener('change', () => {
+      const opt = sel.options[sel.selectedIndex];
+      const bal = opt.dataset.balance;
+      const display = document.getElementById('fromBalanceDisplay');
+      display.textContent = bal !== undefined ? `Available Balance: ${formatCurrency(parseFloat(bal))}` : '';
+    });
+  }
+
+  // Update preview on amount change
+  document.getElementById('transferAmount').addEventListener('input', function() {
+    const amount = parseFloat(this.value);
+    const preview = document.getElementById('transferPreview');
+    if (amount > 0) {
+      document.getElementById('previewAmount').textContent = formatCurrency(amount);
+      preview.classList.remove('hidden');
+    } else {
+      preview.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('transferForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('transferAlert');
+
+    const fromAccountId = document.getElementById('fromAccount').value;
+    const toAccountNumber = document.getElementById('toAccountNumber').value.replace(/\s/g, '').trim();
+    const amount = parseFloat(document.getElementById('transferAmount').value);
+    const description = document.getElementById('transferDescription').value.trim() || 'Fund Transfer';
+
+    if (!fromAccountId) { showAlert('transferAlert', 'Please select the source account.', 'warning'); return; }
+    if (!toAccountNumber) { showAlert('transferAlert', 'Please enter the recipient account number.', 'warning'); return; }
+    if (!amount || amount <= 0) { showAlert('transferAlert', 'Please enter a valid transfer amount.', 'warning'); return; }
+
+    const sel = document.getElementById('fromAccount');
+    const opt = sel.options[sel.selectedIndex];
+    const balance = parseFloat(opt.dataset.balance || '0');
+    if (amount > balance) {
+      showAlert('transferAlert', `Insufficient funds. Available balance: ${formatCurrency(balance)}`, 'danger');
+      return;
+    }
+
+    if (!confirm(`Transfer ${formatCurrency(amount)} to account ${toAccountNumber}?`)) return;
+
+    setLoading('transferBtn', true, 'Processing…');
+    try {
+      const result = await makeRequest('POST', '/api/transactions/transfer', {
+        fromAccountId: parseInt(fromAccountId),
+        toAccountNumber,
+        amount,
+        description
+      });
+      document.getElementById('successMessage').textContent =
+        `${formatCurrency(amount)} has been successfully transferred to account ${toAccountNumber}.`;
+      document.getElementById('transferFormContainer').classList.add('hidden');
+      document.getElementById('successContainer').classList.remove('hidden');
+    } catch (err) {
+      showAlert('transferAlert', `Transfer failed: ${err.message}`, 'danger');
+      setLoading('transferBtn', false);
+    }
+  });
+
+  function resetForm() {
+    document.getElementById('transferForm').reset();
+    document.getElementById('fromBalanceDisplay').textContent = '';
+    document.getElementById('transferPreview').classList.add('hidden');
+    clearAlert('transferAlert');
+    document.getElementById('transferFormContainer').classList.remove('hidden');
+    document.getElementById('successContainer').classList.add('hidden');
+    setLoading('transferBtn', false);
+  }
+
+  init();
+</script>
+</body>
+</html>

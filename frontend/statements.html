@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureBank — Account Statements</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .filter-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar .form-group { margin-bottom: 0; flex: 1; min-width: 160px; }
+    .filter-bar .btn { white-space: nowrap; }
+
+    .stmt-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stmt-summary-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      text-align: center;
+    }
+    .stmt-summary-card .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-bottom: .3rem; }
+    .stmt-summary-card .value { font-size: 1.4rem; font-weight: 800; }
+    .stmt-summary-card .value.green { color: var(--success); }
+    .stmt-summary-card .value.red { color: var(--danger); }
+    .stmt-summary-card .value.blue { color: var(--primary); }
+
+    .amount-credit { color: var(--success); font-weight: 700; }
+    .amount-debit { color: var(--danger); font-weight: 700; }
+
+    @media print {
+      .filter-bar, .no-print { display: none !important; }
+      .main-content { padding: 0 !important; }
+    }
+  </style>
+</head>
+<body class="page-wrapper">
+
+<!-- NAVBAR -->
+<nav class="navbar no-print">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-icon">🏦</div>
+      Secure<span>Bank</span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="transactions.html" class="nav-link"><span class="nav-icon">💸</span> Transactions</a></li>
+      <li><a href="transfer.html" class="nav-link"><span class="nav-icon">↔️</span> Transfer</a></li>
+      <li><a href="loans.html" class="nav-link"><span class="nav-icon">🏛️</span> Loans</a></li>
+      <li><a href="statements.html" class="nav-link"><span class="nav-icon">📄</span> Statements</a></li>
+      <li><a href="profile.html" class="nav-link"><span class="nav-icon">👤</span> Profile</a></li>
+      <li id="adminNavItem" class="hidden"><a href="admin.html" class="nav-link"><span class="nav-icon">⚙️</span> Admin</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="navAvatar">U</div>
+        <span class="nav-user-name" id="navUserName">User</span>
+      </div>
+      <button class="btn btn-ghost btn-sm logout-btn" style="color:#aaa;">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div class="page-title">
+          <div class="page-title-icon">📄</div>
+          Account Statements
+        </div>
+        <p class="page-subtitle">View and export your full transaction history</p>
+      </div>
+      <div class="no-print" style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Print Statement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Header (hidden normally) -->
+  <div id="printHeader" style="display:none;">
+    <h2 style="margin-bottom:.25rem;">SecureBank — Account Statement</h2>
+    <p id="printMeta" style="color:var(--text-secondary);font-size:.9rem;"></p>
+    <hr style="margin:1rem 0;" />
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar no-print">
+    <div class="form-group">
+      <label class="form-label" for="stmtAccount">Account</label>
+      <select class="form-control" id="stmtAccount">
+        <option value="">Loading…</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="startDate">From Date</label>
+      <input type="date" class="form-control" id="startDate" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="endDate">To Date</label>
+      <input type="date" class="form-control" id="endDate" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="txnTypeFilter">Type</label>
+      <select class="form-control" id="txnTypeFilter">
+        <option value="">All Types</option>
+        <option value="DEPOSIT">Deposits</option>
+        <option value="WITHDRAWAL">Withdrawals</option>
+        <option value="TRANSFER_IN">Transfer In</option>
+        <option value="TRANSFER_OUT">Transfer Out</option>
+        <option value="LOAN_REPAYMENT">Loan Repayments</option>
+        <option value="LOAN_DISBURSEMENT">Loan Disbursements</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="applyFilters()">🔍 Apply Filters</button>
+    <button class="btn btn-ghost" onclick="resetFilters()">✕ Reset</button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="stmt-summary" id="stmtSummary" style="display:none;">
+    <div class="stmt-summary-card">
+      <div class="label">Total Credits</div>
+      <div class="value green" id="summaryCredits">$0.00</div>
+    </div>
+    <div class="stmt-summary-card">
+      <div class="label">Total Debits</div>
+      <div class="value red" id="summaryDebits">$0.00</div>
+    </div>
+    <div class="stmt-summary-card">
+      <div class="label">Net Change</div>
+      <div class="value blue" id="summaryNet">$0.00</div>
+    </div>
+    <div class="stmt-summary-card">
+      <div class="label">Transactions</div>
+      <div class="value" id="summaryCount">0</div>
+    </div>
+  </div>
+
+  <!-- Main Alert -->
+  <div id="stmtAlert"></div>
+
+  <!-- Transactions Table -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 Transaction History</div>
+      <span id="txnCount" class="badge badge-secondary" style="display:none;"></span>
+    </div>
+    <div id="stmtTable">
+      <div class="empty-state" style="padding:3rem;">
+        <div class="empty-state-icon">📄</div>
+        <h3>Select an Account</h3>
+        <p>Choose an account above to load your transaction history.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/script.js"></script>
+<script>
+  const user = requireAuth();
+  if (!user) throw new Error('Not authenticated');
+
+  if (user.role === 'ADMIN') document.getElementById('adminNavItem').classList.remove('hidden');
+
+  let allTransactions = [];
+  let filteredTransactions = [];
+  let currentAccount = null;
+
+  // Set default date range (last 3 months)
+  const now = new Date();
+  const threeMonthsAgo = new Date(now);
+  threeMonthsAgo.setMonth(now.getMonth() - 3);
+  document.getElementById('endDate').value = now.toISOString().split('T')[0];
+  document.getElementById('startDate').value = threeMonthsAgo.toISOString().split('T')[0];
+
+  async function init() {
+    const accounts = await loadUserAccounts('stmtAccount', user.id);
+    document.getElementById('stmtAccount').addEventListener('change', loadStatement);
+    if (accounts && accounts.length > 0) {
+      document.getElementById('stmtAccount').value = accounts[0].id;
+      loadStatement();
+    }
+  }
+
+  async function loadStatement() {
+    const accountId = document.getElementById('stmtAccount').value;
+    if (!accountId) return;
+
+    const stmtTable = document.getElementById('stmtTable');
+    stmtTable.innerHTML = '<div class="text-center" style="padding:2rem"><span class="spinner spinner-dark"></span><p class="text-muted mt-3">Loading transactions…</p></div>';
+    clearAlert('stmtAlert');
+
+    try {
+      const sel = document.getElementById('stmtAccount');
+      const opt = sel.options[sel.selectedIndex];
+      currentAccount = { id: accountId, number: opt.dataset.accountNumber, balance: opt.dataset.balance };
+
+      allTransactions = await makeRequest('GET', `/api/transactions/account/${accountId}`);
+      if (!Array.isArray(allTransactions)) allTransactions = [];
+
+      allTransactions.sort((a, b) =>
+        new Date(b.transactionDate || b.createdAt || 0) - new Date(a.transactionDate || a.createdAt || 0)
+      );
+      applyFilters();
+    } catch (e) {
+      stmtTable.innerHTML = `<div class="alert alert-danger" style="margin:1.5rem;">Failed to load transactions: ${e.message}</div>`;
+    }
+  }
+
+  function applyFilters() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const typeFilter = document.getElementById('txnTypeFilter').value;
+
+    filteredTransactions = allTransactions.filter(t => {
+      const date = new Date(t.transactionDate || t.createdAt || 0);
+      if (startDate && date < new Date(startDate)) return false;
+      if (endDate && date > new Date(endDate + 'T23:59:59')) return false;
+      if (typeFilter && t.type !== typeFilter) return false;
+      return true;
+    });
+
+    renderTable(filteredTransactions);
+    renderSummary(filteredTransactions);
+  }
+
+  function resetFilters() {
+    document.getElementById('txnTypeFilter').value = '';
+    const now = new Date();
+    const ago = new Date(); ago.setMonth(now.getMonth() - 3);
+    document.getElementById('endDate').value = now.toISOString().split('T')[0];
+    document.getElementById('startDate').value = ago.toISOString().split('T')[0];
+    applyFilters();
+  }
+
+  function renderSummary(txns) {
+    const summaryEl = document.getElementById('stmtSummary');
+    if (!txns || txns.length === 0) { summaryEl.style.display = 'none'; return; }
+    summaryEl.style.display = 'grid';
+
+    let credits = 0, debits = 0;
+    txns.forEach(t => {
+      const cls = getTransactionClass(t.type);
+      if (cls === 'credit') credits += t.amount || 0;
+      else debits += t.amount || 0;
+    });
+
+    document.getElementById('summaryCredits').textContent = formatCurrency(credits);
+    document.getElementById('summaryDebits').textContent = formatCurrency(debits);
+    const net = credits - debits;
+    const netEl = document.getElementById('summaryNet');
+    netEl.textContent = formatCurrency(Math.abs(net));
+    netEl.className = `value ${net >= 0 ? 'green' : 'red'}`;
+    document.getElementById('summaryCount').textContent = txns.length;
+  }
+
+  function renderTable(txns) {
+    const container = document.getElementById('stmtTable');
+    const countEl = document.getElementById('txnCount');
+
+    if (!txns || txns.length === 0) {
+      countEl.style.display = 'none';
+      container.innerHTML = `<div class="empty-state" style="padding:3rem;">
+        <div class="empty-state-icon">🔍</div>
+        <h3>No Transactions Found</h3>
+        <p>Try adjusting your filters or date range.</p>
+      </div>`;
+      return;
+    }
+
+    countEl.textContent = `${txns.length} record${txns.length !== 1 ? 's' : ''}`;
+    countEl.style.display = '';
+
+    container.innerHTML = `<div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Reference</th>
+            <th style="text-align:right">Amount</th>
+            <th style="text-align:right">Balance After</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${txns.map(t => {
+            const cls = getTransactionClass(t.type);
+            const sign = cls === 'credit' ? '+' : '-';
+            return `<tr>
+              <td data-label="Date">
+                <div style="font-weight:600;font-size:.875rem;">${formatDate(t.transactionDate || t.createdAt)}</div>
+                <div style="font-size:.75rem;color:var(--text-muted);">${new Date(t.transactionDate || t.createdAt || 0).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'})}</div>
+              </td>
+              <td data-label="Type">
+                <span class="badge ${cls === 'credit' ? 'badge-success' : 'badge-danger'}" style="font-size:.7rem;">
+                  ${getTransactionIcon(t.type)} ${(t.type || '').replace(/_/g, ' ')}
+                </span>
+              </td>
+              <td data-label="Description" style="max-width:220px;">
+                <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.description || '—'}</div>
+              </td>
+              <td data-label="Reference" class="font-mono" style="font-size:.78rem;color:var(--text-muted);">${t.referenceNumber || t.id || '—'}</td>
+              <td data-label="Amount" style="text-align:right" class="${cls === 'credit' ? 'amount-credit' : 'amount-debit'}">
+                ${sign}${formatCurrency(t.amount)}
+              </td>
+              <td data-label="Balance After" style="text-align:right;font-weight:600;">${formatCurrency(t.balanceAfter)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  function exportCSV() {
+    if (!filteredTransactions.length) {
+      showAlert('stmtAlert', 'No transactions to export. Apply filters first.', 'warning');
+      return;
+    }
+    const headers = ['Date', 'Type', 'Description', 'Reference', 'Amount', 'Balance After'];
+    const rows = filteredTransactions.map(t => [
+      formatDateTime(t.transactionDate || t.createdAt),
+      t.type || '',
+      `"${(t.description || '').replace(/"/g, '""')}"`,
+      t.referenceNumber || t.id || '',
+      (getTransactionClass(t.type) === 'credit' ? '+' : '-') + (t.amount || 0).toFixed(2),
+      (t.balanceAfter || 0).toFixed(2)
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `statement-${currentAccount?.number || 'account'}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Print adjustments
+  window.addEventListener('beforeprint', () => {
+    const sel = document.getElementById('stmtAccount');
+    const opt = sel.options[sel.selectedIndex];
+    document.getElementById('printHeader').style.display = 'block';
+    document.getElementById('printMeta').textContent =
+      `Account: ${opt.text} | Generated: ${formatDateTime(new Date())} | Showing ${filteredTransactions.length} transactions`;
+  });
+  window.addEventListener('afterprint', () => {
+    document.getElementById('printHeader').style.display = 'none';
+  });
+
+  init();
+</script>
+</body>
+</html>
