@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureBank — Transactions</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body class="page-wrapper">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-icon">🏦</div>
+      Secure<span>Bank</span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="transactions.html" class="nav-link"><span class="nav-icon">💸</span> Transactions</a></li>
+      <li><a href="transfer.html" class="nav-link"><span class="nav-icon">↔️</span> Transfer</a></li>
+      <li><a href="loans.html" class="nav-link"><span class="nav-icon">🏛️</span> Loans</a></li>
+      <li><a href="statements.html" class="nav-link"><span class="nav-icon">📄</span> Statements</a></li>
+      <li><a href="profile.html" class="nav-link"><span class="nav-icon">👤</span> Profile</a></li>
+      <li id="adminNavItem" class="hidden"><a href="admin.html" class="nav-link"><span class="nav-icon">⚙️</span> Admin</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="navAvatar">U</div>
+        <span class="nav-user-name" id="navUserName">User</span>
+      </div>
+      <button class="btn btn-ghost btn-sm logout-btn" style="color:#aaa;">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="page-title">
+      <div class="page-title-icon">💸</div>
+      Transactions
+    </div>
+    <p class="page-subtitle">Deposit funds into or withdraw funds from your accounts</p>
+  </div>
+
+  <div class="content-grid">
+    <!-- LEFT: Forms -->
+    <div>
+      <!-- Account Selector -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">💳 Select Account</div>
+        </div>
+        <div class="card-body">
+          <div class="form-group" style="margin:0">
+            <label class="form-label" for="txnAccount">Account</label>
+            <select class="form-control" id="txnAccount">
+              <option value="">Loading accounts…</option>
+            </select>
+            <div class="form-text" id="accountBalanceDisplay"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deposit / Withdraw Tabs -->
+      <div class="card">
+        <div class="card-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="deposit" data-tab-group="txn">⬇️ Deposit</button>
+            <button class="tab-btn" data-tab="withdraw" data-tab-group="txn">⬆️ Withdraw</button>
+          </div>
+
+          <!-- DEPOSIT -->
+          <div class="tab-content active" data-tab="deposit" data-tab-group="txn">
+            <div id="depositAlert"></div>
+            <form id="depositForm" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="depositAmount">Amount <span class="required">*</span></label>
+                <div class="input-group">
+                  <span class="form-control" style="max-width:3rem;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--bg);text-align:center;flex:0;">$</span>
+                  <input type="number" class="form-control" id="depositAmount" name="depositAmount"
+                         placeholder="0.00" min="0.01" step="0.01"
+                         style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="depositDescription">Description</label>
+                <input type="text" class="form-control" id="depositDescription"
+                       placeholder="e.g. Salary, cash deposit…" />
+              </div>
+              <div id="depositResult"></div>
+              <button type="submit" class="btn btn-success btn-block btn-lg" id="depositBtn">
+                ⬇️ Deposit Funds
+              </button>
+            </form>
+          </div>
+
+          <!-- WITHDRAW -->
+          <div class="tab-content" data-tab="withdraw" data-tab-group="txn">
+            <div id="withdrawAlert"></div>
+            <form id="withdrawForm" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="withdrawAmount">Amount <span class="required">*</span></label>
+                <div class="input-group">
+                  <span class="form-control" style="max-width:3rem;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--bg);text-align:center;flex:0;">$</span>
+                  <input type="number" class="form-control" id="withdrawAmount" name="withdrawAmount"
+                         placeholder="0.00" min="0.01" step="0.01"
+                         style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="withdrawDescription">Description</label>
+                <input type="text" class="form-control" id="withdrawDescription"
+                       placeholder="e.g. ATM withdrawal, bill payment…" />
+              </div>
+              <div id="withdrawResult"></div>
+              <button type="submit" class="btn btn-danger btn-block btn-lg" id="withdrawBtn">
+                ⬆️ Withdraw Funds
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Recent Transactions -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔄 Recent Transactions</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadTransactions()">🔃 Refresh</button>
+        </div>
+        <div class="card-body" id="txnList">
+          <div class="empty-state">
+            <div class="empty-state-icon">🔄</div>
+            <p>Select an account to view transactions</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/script.js"></script>
+<script>
+  const user = requireAuth();
+  if (!user) throw new Error('Not authenticated');
+
+  if (user.role === 'ADMIN') document.getElementById('adminNavItem').classList.remove('hidden');
+
+  let accounts = [];
+
+  async function init() {
+    accounts = await loadUserAccounts('txnAccount', user.id);
+    const sel = document.getElementById('txnAccount');
+
+    sel.addEventListener('change', () => {
+      const opt = sel.options[sel.selectedIndex];
+      const bal = opt.dataset.balance;
+      const display = document.getElementById('accountBalanceDisplay');
+      if (bal !== undefined) {
+        display.textContent = `Available Balance: ${formatCurrency(parseFloat(bal))}`;
+      } else {
+        display.textContent = '';
+      }
+      loadTransactions();
+    });
+  }
+
+  async function loadTransactions() {
+    const accountId = document.getElementById('txnAccount').value;
+    if (!accountId) return;
+    const container = document.getElementById('txnList');
+    container.innerHTML = '<div class="text-center" style="padding:1rem"><span class="spinner spinner-dark"></span></div>';
+    try {
+      const txns = await makeRequest('GET', `/api/transactions/account/${accountId}`);
+      if (!txns || txns.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔄</div><p>No transactions yet</p></div>';
+        return;
+      }
+      const sorted = [...txns].sort((a, b) =>
+        new Date(b.transactionDate || b.createdAt || 0) - new Date(a.transactionDate || a.createdAt || 0)
+      );
+      container.innerHTML = sorted.slice(0, 20).map(t => {
+        const cls = getTransactionClass(t.type);
+        const sign = cls === 'credit' ? '+' : '-';
+        return `<div class="transaction-item">
+          <div class="txn-icon ${cls}">${getTransactionIcon(t.type)}</div>
+          <div class="txn-info">
+            <div class="txn-desc">${t.description || t.type || 'Transaction'}</div>
+            <div class="txn-date">${formatDateTime(t.transactionDate || t.createdAt)}</div>
+          </div>
+          <div class="txn-amount ${cls}">${sign}${formatCurrency(t.amount)}</div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      container.innerHTML = `<div class="alert alert-danger">Failed to load transactions: ${e.message}</div>`;
+    }
+  }
+
+  function refreshAccountBalance(accountId) {
+    makeRequest('GET', `/api/accounts/${accountId}`).then(acc => {
+      const sel = document.getElementById('txnAccount');
+      const opt = sel.querySelector(`option[value="${accountId}"]`);
+      if (opt && acc) {
+        opt.dataset.balance = acc.balance;
+        opt.textContent = `${acc.accountType} — ${formatAccountNumber(acc.accountNumber)} (${formatCurrency(acc.balance)})`;
+        document.getElementById('accountBalanceDisplay').textContent =
+          `Available Balance: ${formatCurrency(acc.balance)}`;
+      }
+    }).catch(() => {});
+  }
+
+  // DEPOSIT
+  document.getElementById('depositForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('depositAlert');
+    clearAlert('depositResult');
+    const accountId = document.getElementById('txnAccount').value;
+    if (!accountId) { showAlert('depositAlert', 'Please select an account.', 'warning'); return; }
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    if (!amount || amount <= 0) { showAlert('depositAlert', 'Please enter a valid amount greater than 0.', 'warning'); return; }
+    const description = document.getElementById('depositDescription').value.trim() || 'Deposit';
+
+    setLoading('depositBtn', true, 'Processing…');
+    try {
+      const result = await makeRequest('POST', '/api/transactions/deposit', { accountId, amount, description });
+      showAlert('depositResult', `✅ Deposit of ${formatCurrency(amount)} successful! New balance: ${formatCurrency(result.balanceAfter || result.balance)}`, 'success');
+      document.getElementById('depositAmount').value = '';
+      document.getElementById('depositDescription').value = '';
+      refreshAccountBalance(accountId);
+      loadTransactions();
+    } catch (err) {
+      showAlert('depositAlert', `Deposit failed: ${err.message}`, 'danger');
+    } finally {
+      setLoading('depositBtn', false);
+    }
+  });
+
+  // WITHDRAW
+  document.getElementById('withdrawForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('withdrawAlert');
+    clearAlert('withdrawResult');
+    const accountId = document.getElementById('txnAccount').value;
+    if (!accountId) { showAlert('withdrawAlert', 'Please select an account.', 'warning'); return; }
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    if (!amount || amount <= 0) { showAlert('withdrawAlert', 'Please enter a valid amount greater than 0.', 'warning'); return; }
+    const description = document.getElementById('withdrawDescription').value.trim() || 'Withdrawal';
+
+    setLoading('withdrawBtn', true, 'Processing…');
+    try {
+      const result = await makeRequest('POST', '/api/transactions/withdraw', { accountId, amount, description });
+      showAlert('withdrawResult', `✅ Withdrawal of ${formatCurrency(amount)} successful! New balance: ${formatCurrency(result.balanceAfter || result.balance)}`, 'success');
+      document.getElementById('withdrawAmount').value = '';
+      document.getElementById('withdrawDescription').value = '';
+      refreshAccountBalance(accountId);
+      loadTransactions();
+    } catch (err) {
+      showAlert('withdrawAlert', `Withdrawal failed: ${err.message}`, 'danger');
+    } finally {
+      setLoading('withdrawBtn', false);
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

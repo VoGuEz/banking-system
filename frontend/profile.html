@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureBank — Profile</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .profile-hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.75rem;
+      box-shadow: var(--shadow);
+    }
+    .profile-avatar-large {
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,.2);
+      border: 3px solid rgba(255,255,255,.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 800; color: #fff;
+      text-transform: uppercase; flex-shrink: 0;
+    }
+    .profile-hero h2 { font-size: 1.5rem; color: #fff; margin-bottom: .25rem; }
+    .profile-hero p { color: rgba(255,255,255,.8); font-size: .9rem; }
+    .profile-hero .role-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.2);
+      border-radius: 20px;
+      padding: .25rem .75rem;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-top: .5rem;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      padding: .875rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      width: 140px;
+      flex-shrink: 0;
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .info-value { flex: 1; font-weight: 600; color: var(--text-primary); }
+    .info-icon { font-size: 1.1rem; flex-shrink: 0; opacity: .7; }
+  </style>
+</head>
+<body class="page-wrapper">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-icon">🏦</div>
+      Secure<span>Bank</span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="transactions.html" class="nav-link"><span class="nav-icon">💸</span> Transactions</a></li>
+      <li><a href="transfer.html" class="nav-link"><span class="nav-icon">↔️</span> Transfer</a></li>
+      <li><a href="loans.html" class="nav-link"><span class="nav-icon">🏛️</span> Loans</a></li>
+      <li><a href="statements.html" class="nav-link"><span class="nav-icon">📄</span> Statements</a></li>
+      <li><a href="profile.html" class="nav-link"><span class="nav-icon">👤</span> Profile</a></li>
+      <li id="adminNavItem" class="hidden"><a href="admin.html" class="nav-link"><span class="nav-icon">⚙️</span> Admin</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="navAvatar">U</div>
+        <span class="nav-user-name" id="navUserName">User</span>
+      </div>
+      <button class="btn btn-ghost btn-sm logout-btn" style="color:#aaa;">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="page-title">
+      <div class="page-title-icon">👤</div>
+      My Profile
+    </div>
+    <p class="page-subtitle">Manage your personal information and security settings</p>
+  </div>
+
+  <!-- Profile Hero -->
+  <div class="profile-hero">
+    <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+    <div>
+      <h2 id="profileFullName">Loading…</h2>
+      <p id="profileEmail">—</p>
+      <div class="role-badge" id="profileRole">Customer</div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- LEFT: Profile Info & Edit -->
+    <div>
+      <!-- Current Info -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">📋 Personal Information</div>
+          <button class="btn btn-outline btn-sm" onclick="toggleEditMode()">✏️ Edit</button>
+        </div>
+        <div class="card-body" id="profileInfoView">
+          <div class="info-row">
+            <span class="info-icon">👤</span>
+            <div class="info-label">First Name</div>
+            <div class="info-value" id="infoFirstName">—</div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">👤</span>
+            <div class="info-label">Last Name</div>
+            <div class="info-value" id="infoLastName">—</div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📧</span>
+            <div class="info-label">Email</div>
+            <div class="info-value" id="infoEmail">—</div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📱</span>
+            <div class="info-label">Phone</div>
+            <div class="info-value" id="infoPhone">—</div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <div class="info-label">Address</div>
+            <div class="info-value" id="infoAddress">—</div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📅</span>
+            <div class="info-label">Member Since</div>
+            <div class="info-value" id="infoCreatedAt">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Form (hidden by default) -->
+      <div class="card mb-4 hidden" id="editFormCard">
+        <div class="card-header">
+          <div class="card-title">✏️ Edit Profile</div>
+        </div>
+        <div class="card-body">
+          <div id="editProfileAlert"></div>
+          <form id="editProfileForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="editFirstName">First Name <span class="required">*</span></label>
+                <input type="text" class="form-control" id="editFirstName" name="firstName" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="editLastName">Last Name <span class="required">*</span></label>
+                <input type="text" class="form-control" id="editLastName" name="lastName" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editEmail">Email Address <span class="required">*</span></label>
+              <input type="email" class="form-control" id="editEmail" name="email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editPhone">Phone Number</label>
+              <input type="tel" class="form-control" id="editPhone" name="phone" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editAddress">Address</label>
+              <textarea class="form-control" id="editAddress" name="address" rows="2" style="resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:.75rem;">
+              <button type="button" class="btn btn-ghost" onclick="toggleEditMode()">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="saveProfileBtn">💾 Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Security -->
+    <div>
+      <!-- Change Password -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">🔐 Change Password</div>
+        </div>
+        <div class="card-body">
+          <div id="passwordAlert"></div>
+          <form id="changePasswordForm" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="oldPassword">Current Password <span class="required">*</span></label>
+              <input type="password" class="form-control" id="oldPassword"
+                     placeholder="Enter your current password" autocomplete="current-password" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="newPassword">New Password <span class="required">*</span></label>
+              <input type="password" class="form-control" id="newPassword"
+                     placeholder="Min. 8 characters" autocomplete="new-password" />
+              <div class="form-text">Use at least 8 characters with a mix of letters and numbers.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirmNewPassword">Confirm New Password <span class="required">*</span></label>
+              <input type="password" class="form-control" id="confirmNewPassword"
+                     placeholder="Repeat new password" autocomplete="new-password" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" id="changePasswordBtn">
+              🔐 Update Password
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Security Overview -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🛡️ Account Security</div>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-icon">✅</span>
+            <div class="info-label">Account Status</div>
+            <div class="info-value"><span class="badge badge-success" id="accountStatus">Active</span></div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">🔑</span>
+            <div class="info-label">Role</div>
+            <div class="info-value"><span class="badge badge-primary" id="securityRole">Customer</span></div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📅</span>
+            <div class="info-label">Member Since</div>
+            <div class="info-value" id="securitySince">—</div>
+          </div>
+          <div class="mt-4 pt-3" style="border-top:1px solid var(--border);">
+            <button class="btn btn-danger btn-block logout-btn">
+              🚪 Sign Out of All Devices
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/script.js"></script>
+<script>
+  const user = requireAuth();
+  if (!user) throw new Error('Not authenticated');
+
+  if (user.role === 'ADMIN') document.getElementById('adminNavItem').classList.remove('hidden');
+
+  function populateProfile(userData) {
+    const fullName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+    const initials = getInitials(userData.firstName, userData.lastName);
+
+    // Hero
+    document.getElementById('profileAvatarLarge').textContent = initials || 'U';
+    document.getElementById('profileFullName').textContent = fullName || 'User';
+    document.getElementById('profileEmail').textContent = userData.email || '—';
+    document.getElementById('profileRole').textContent = userData.role || 'Customer';
+
+    // Info view
+    document.getElementById('infoFirstName').textContent = userData.firstName || '—';
+    document.getElementById('infoLastName').textContent = userData.lastName || '—';
+    document.getElementById('infoEmail').textContent = userData.email || '—';
+    document.getElementById('infoPhone').textContent = userData.phone || '—';
+    document.getElementById('infoAddress').textContent = userData.address || '—';
+    document.getElementById('infoCreatedAt').textContent = formatDate(userData.createdAt) || '—';
+
+    // Edit form
+    document.getElementById('editFirstName').value = userData.firstName || '';
+    document.getElementById('editLastName').value = userData.lastName || '';
+    document.getElementById('editEmail').value = userData.email || '';
+    document.getElementById('editPhone').value = userData.phone || '';
+    document.getElementById('editAddress').value = userData.address || '';
+
+    // Security
+    document.getElementById('accountStatus').textContent = userData.status || 'Active';
+    document.getElementById('securityRole').textContent = userData.role || 'Customer';
+    document.getElementById('securitySince').textContent = formatDate(userData.createdAt) || '—';
+  }
+
+  async function loadProfile() {
+    try {
+      const userData = await makeRequest('GET', `/api/users/${user.id}`);
+      populateProfile(userData);
+    } catch {
+      populateProfile(user);
+    }
+  }
+
+  function toggleEditMode() {
+    const editCard = document.getElementById('editFormCard');
+    const infoCard = document.getElementById('profileInfoView').closest('.card');
+    editCard.classList.toggle('hidden');
+    clearAlert('editProfileAlert');
+  }
+
+  document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('editProfileAlert');
+
+    const firstName = document.getElementById('editFirstName').value.trim();
+    const lastName = document.getElementById('editLastName').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    const address = document.getElementById('editAddress').value.trim();
+
+    if (!firstName || !lastName || !email) {
+      showAlert('editProfileAlert', 'First name, last name, and email are required.', 'warning');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showAlert('editProfileAlert', 'Please enter a valid email address.', 'warning');
+      return;
+    }
+
+    setLoading('saveProfileBtn', true, 'Saving…');
+    try {
+      const updated = await makeRequest('PUT', `/api/users/${user.id}`, {
+        firstName, lastName, email, phone, address,
+        role: user.role
+      });
+      setCurrentUser({ ...user, ...updated });
+      populateProfile({ ...user, ...updated });
+      toggleEditMode();
+      showAlert('editProfileAlert', '✅ Profile updated successfully!', 'success');
+      // update nav
+      document.getElementById('navAvatar').textContent = getInitials(firstName, lastName);
+      document.getElementById('navUserName').textContent = firstName;
+    } catch (err) {
+      showAlert('editProfileAlert', `Update failed: ${err.message}`, 'danger');
+    } finally {
+      setLoading('saveProfileBtn', false);
+    }
+  });
+
+  document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('passwordAlert');
+
+    const oldPassword = document.getElementById('oldPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+    if (!oldPassword || !newPassword || !confirmNewPassword) {
+      showAlert('passwordAlert', 'All password fields are required.', 'warning');
+      return;
+    }
+    if (newPassword.length < 8) {
+      showAlert('passwordAlert', 'New password must be at least 8 characters.', 'warning');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      showAlert('passwordAlert', 'New passwords do not match.', 'danger');
+      return;
+    }
+
+    setLoading('changePasswordBtn', true, 'Updating password…');
+    try {
+      await makeRequest('PUT', `/api/users/${user.id}`, {
+        ...user, password: newPassword, oldPassword
+      });
+      showAlert('passwordAlert', '✅ Password updated successfully!', 'success');
+      document.getElementById('changePasswordForm').reset();
+    } catch (err) {
+      showAlert('passwordAlert', `Password change failed: ${err.message}`, 'danger');
+    } finally {
+      setLoading('changePasswordBtn', false);
+    }
+  });
+
+  loadProfile();
+</script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+/* ===== RESPONSIVE CSS ===== */
+
+/* ===== LARGE SCREENS (>1200px) ===== */
+@media (min-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ===== MEDIUM-LARGE (992px - 1199px) ===== */
+@media (max-width: 1199px) {
+  .main-content { padding: 1.5rem 1.25rem; }
+  .content-grid.three-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== TABLETS (768px - 991px) ===== */
+@media (max-width: 991px) {
+  :root { --nav-height: 60px; }
+
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .content-grid { grid-template-columns: 1fr; }
+  .content-grid .col-span-2 { grid-column: span 1; }
+
+  .accounts-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+  .form-row { grid-template-columns: 1fr; }
+
+  .loan-details { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== TABLET/MOBILE (768px) ===== */
+@media (max-width: 768px) {
+  /* Navigation - Hamburger */
+  .hamburger { display: flex; }
+
+  .nav-links {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: var(--bg-nav);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem 1rem 1rem;
+    gap: 0.25rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 999;
+    border-bottom: 2px solid rgba(255,255,255,.1);
+  }
+
+  .nav-links.nav-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+  }
+
+  .nav-user-name { display: none; }
+
+  /* Main Content */
+  .main-content { padding: 1.25rem 1rem; }
+
+  /* Auth Card */
+  .auth-card { padding: 1.75rem 1.25rem; }
+  .auth-logo-text { font-size: 1.5rem; }
+
+  /* Stats */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .stat-card { padding: 1.1rem; }
+  .stat-value { font-size: 1.3rem; }
+  .stat-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+
+  /* Account Cards */
+  .accounts-grid { grid-template-columns: 1fr; }
+  .account-balance { font-size: 1.75rem; }
+
+  /* Content Grid */
+  .content-grid, .content-grid.three-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tables - Horizontal Scroll */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table { min-width: 600px; }
+
+  th, td {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  /* Cards */
+  .card-header { padding: 1rem 1.25rem; }
+  .card-body { padding: 1.25rem; }
+  .card-footer { padding: 0.875rem 1.25rem; }
+
+  /* Buttons */
+  .btn { min-height: 44px; } /* Touch-friendly */
+  .btn-sm { min-height: 36px; }
+
+  /* Forms */
+  .form-row { grid-template-columns: 1fr; }
+
+  /* Page Header */
+  .page-title { font-size: 1.375rem; }
+
+  /* Loan Details */
+  .loan-details { grid-template-columns: 1fr 1fr; }
+
+  /* Tabs */
+  .tabs { gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-btn { padding: 0.6rem 1rem; font-size: 0.875rem; white-space: nowrap; flex-shrink: 0; }
+
+  /* Modal */
+  .modal { border-radius: var(--radius); }
+  .modal-overlay { padding: 0.75rem; }
+
+  /* Hamburger animation when open */
+  .hamburger.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .hamburger.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+}
+
+/* ===== MOBILE (480px) ===== */
+@media (max-width: 480px) {
+  html { font-size: 15px; }
+
+  .main-content { padding: 1rem 0.75rem; }
+
+  /* Stats - stack single column */
+  .stats-grid { grid-template-columns: 1fr; }
+
+  .stat-card { padding: 1rem; }
+
+  /* Auth */
+  .auth-card { padding: 1.5rem 1rem; }
+  .auth-logo { margin-bottom: 1.5rem; }
+
+  /* Account card */
+  .account-balance { font-size: 1.5rem; }
+
+  /* Buttons - full-width on mobile */
+  .btn-mobile-block { width: 100%; }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+
+  .modal-footer .btn { width: 100%; }
+
+  /* Loan details - single column */
+  .loan-details { grid-template-columns: 1fr; }
+
+  /* Page title */
+  .page-title { font-size: 1.25rem; }
+  .page-title-icon { width: 34px; height: 34px; font-size: 0.95rem; }
+
+  /* Nav avatar */
+  .nav-right .btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+
+  /* Transaction items */
+  .txn-icon { width: 36px; height: 36px; font-size: 0.875rem; }
+  .txn-desc { font-size: 0.85rem; }
+
+  /* Form */
+  .form-control { font-size: 1rem; } /* Prevents iOS zoom on focus */
+
+  /* Table stacked layout on very small screens */
+  .table-stacked table,
+  .table-stacked thead,
+  .table-stacked tbody,
+  .table-stacked th,
+  .table-stacked td,
+  .table-stacked tr {
+    display: block;
+  }
+
+  .table-stacked thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .table-stacked tr {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+
+  .table-stacked td {
+    border: none;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    padding-left: 45%;
+    text-align: right;
+    min-height: 40px;
+  }
+
+  .table-stacked td:last-child { border-bottom: none; }
+
+  .table-stacked td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    text-align: left;
+    max-width: 40%;
+  }
+}
+
+/* ===== VERY SMALL (360px) ===== */
+@media (max-width: 360px) {
+  .navbar-brand .brand-icon { width: 30px; height: 30px; font-size: 0.9rem; }
+  .navbar-brand { font-size: 1.2rem; }
+  .auth-logo-icon { width: 44px; height: 44px; }
+}
+
+/* ===== LANDSCAPE MOBILE ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .auth-page { padding: 1rem; }
+  .auth-card { padding: 1.25rem; }
+  .auth-logo { margin-bottom: 1rem; }
+}
+
+/* ===== HIGH DPI / RETINA ===== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .account-card::after, .account-card::before { display: none; }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .spinner { animation: none; border-top-color: var(--primary); }
+}
+
+/* ===== FOCUS VISIBLE (Accessibility) ===== */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ===== TOUCH IMPROVEMENTS ===== */
+@media (hover: none) {
+  .stat-card:hover { transform: none; }
+  .account-card:hover { transform: none; }
+  .loan-card:hover { box-shadow: none; }
+
+  /* Larger tap targets */
+  .tab-btn { padding: 0.7rem 1.25rem; }
+  .nav-link { padding: 0.6rem 1rem; }
+}

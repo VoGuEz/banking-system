@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureBank — Login &amp; Register</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .auth-divider { text-align:center; margin:1.25rem 0; position:relative; color:var(--text-muted); font-size:.85rem; }
+    .auth-divider::before,
+    .auth-divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--border); }
+    .auth-divider::before { left:0; } .auth-divider::after { right:0; }
+    .features { display:flex; gap:2rem; margin-top:2rem; flex-wrap:wrap; justify-content:center; }
+    .feature { display:flex; align-items:center; gap:.5rem; color:rgba(255,255,255,.75); font-size:.85rem; }
+    .feature-icon { font-size:1.1rem; }
+  </style>
+</head>
+<body>
+<div class="auth-page">
+  <a href="index.html" class="auth-logo">
+    <div class="auth-logo-icon">🏦</div>
+    <div class="auth-logo-text">Secure<span>Bank</span></div>
+  </a>
+  <p class="auth-tagline">Your trusted digital banking partner</p>
+
+  <div class="auth-card mt-4">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="login" data-tab-group="auth">🔐 Login</button>
+      <button class="tab-btn" data-tab="register" data-tab-group="auth">📝 Register</button>
+    </div>
+
+    <!-- LOGIN TAB -->
+    <div class="tab-content active" data-tab="login" data-tab-group="auth">
+      <div id="loginAlert"></div>
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email Address <span class="required">*</span></label>
+          <input type="email" class="form-control" id="loginEmail" name="loginEmail"
+                 placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password <span class="required">*</span></label>
+          <input type="password" class="form-control" id="loginPassword" name="loginPassword"
+                 placeholder="Enter your password" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn">
+          🔐 Sign In
+        </button>
+      </form>
+      <p class="text-center text-muted mt-4" style="font-size:.875rem;">
+        Don't have an account?
+        <a href="#" onclick="switchTab('register')">Create one here</a>
+      </p>
+    </div>
+
+    <!-- REGISTER TAB -->
+    <div class="tab-content" data-tab="register" data-tab-group="auth">
+      <div id="registerAlert"></div>
+      <form id="registerForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="regFirstName">First Name <span class="required">*</span></label>
+            <input type="text" class="form-control" id="regFirstName" name="regFirstName"
+                   placeholder="John" autocomplete="given-name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regLastName">Last Name <span class="required">*</span></label>
+            <input type="text" class="form-control" id="regLastName" name="regLastName"
+                   placeholder="Doe" autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regEmail">Email Address <span class="required">*</span></label>
+          <input type="email" class="form-control" id="regEmail" name="regEmail"
+                 placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regPhone">Phone Number <span class="required">*</span></label>
+          <input type="tel" class="form-control" id="regPhone" name="regPhone"
+                 placeholder="+1 (555) 000-0000" autocomplete="tel" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regAddress">Address</label>
+          <input type="text" class="form-control" id="regAddress" name="regAddress"
+                 placeholder="123 Main St, City, State" autocomplete="street-address" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Password <span class="required">*</span></label>
+            <input type="password" class="form-control" id="regPassword" name="regPassword"
+                   placeholder="Min. 8 characters" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regConfirmPassword">Confirm Password <span class="required">*</span></label>
+            <input type="password" class="form-control" id="regConfirmPassword" name="regConfirmPassword"
+                   placeholder="Repeat password" autocomplete="new-password" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="registerBtn">
+          📝 Create Account
+        </button>
+      </form>
+      <p class="text-center text-muted mt-4" style="font-size:.875rem;">
+        Already have an account?
+        <a href="#" onclick="switchTab('login')">Sign in here</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature"><span class="feature-icon">🔒</span> Bank-grade Security</div>
+    <div class="feature"><span class="feature-icon">⚡</span> Instant Transfers</div>
+    <div class="feature"><span class="feature-icon">📊</span> Real-time Analytics</div>
+    <div class="feature"><span class="feature-icon">💳</span> Multiple Accounts</div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+  // Redirect if already logged in
+  (function() {
+    const user = getCurrentUser();
+    if (user) window.location.href = 'dashboard.html';
+  })();
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => {
+      c.classList.toggle('active', c.dataset.tab === tabName);
+    });
+  }
+
+  // ===== LOGIN =====
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('loginAlert');
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) {
+      showAlert('loginAlert', 'Please enter your email and password.', 'warning');
+      return;
+    }
+
+    setLoading('loginBtn', true, 'Signing in...');
+    try {
+      const user = await makeRequest('POST', '/api/users/login', { email, password });
+      setCurrentUser(user);
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      showAlert('loginAlert', err.message || 'Invalid email or password. Please try again.', 'danger');
+      setLoading('loginBtn', false);
+    }
+  });
+
+  // ===== REGISTER =====
+  document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('registerAlert');
+
+    const firstName = document.getElementById('regFirstName').value.trim();
+    const lastName = document.getElementById('regLastName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const address = document.getElementById('regAddress').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+    // Validation
+    if (!firstName || !lastName || !email || !phone || !password) {
+      showAlert('registerAlert', 'Please fill in all required fields.', 'warning');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showAlert('registerAlert', 'Please enter a valid email address.', 'warning');
+      return;
+    }
+    if (password.length < 8) {
+      showAlert('registerAlert', 'Password must be at least 8 characters.', 'warning');
+      return;
+    }
+    if (password !== confirmPassword) {
+      showAlert('registerAlert', 'Passwords do not match.', 'warning');
+      return;
+    }
+
+    setLoading('registerBtn', true, 'Creating account...');
+    try {
+      const user = await makeRequest('POST', '/api/users/register', {
+        firstName, lastName, email, phone, address, password
+      });
+      setCurrentUser(user);
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      showAlert('registerAlert', err.message || 'Registration failed. Email may already be in use.', 'danger');
+      setLoading('registerBtn', false);
+    }
+  });
+</script>
+</body>
+</html>
