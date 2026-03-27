@@ -255,9 +255,10 @@
     const amount = parseFloat(document.getElementById('loanAmount').value);
     const term = parseInt(document.getElementById('loanTerm').value);
     const estimate = document.getElementById('loanEstimate');
+    const ESTIMATED_ANNUAL_RATE = 0.08; // 8% annual interest rate (estimated display only)
 
     if (amount > 0 && term > 0) {
-      const rate = 0.08 / 12; // 8% annual rate (estimated)
+      const rate = ESTIMATED_ANNUAL_RATE / 12;
       const monthly = (amount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
       const totalInterest = (monthly * term) - amount;
       document.getElementById('estMonthly').textContent = formatCurrency(monthly);

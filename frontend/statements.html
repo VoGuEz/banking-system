@@ -188,8 +188,7 @@
 
   // Set default date range (last 3 months)
   const now = new Date();
-  const threeMonthsAgo = new Date(now);
-  threeMonthsAgo.setMonth(now.getMonth() - 3);
+  const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
   document.getElementById('endDate').value = now.toISOString().split('T')[0];
   document.getElementById('startDate').value = threeMonthsAgo.toISOString().split('T')[0];
 
@@ -247,7 +246,7 @@
   function resetFilters() {
     document.getElementById('txnTypeFilter').value = '';
     const now = new Date();
-    const ago = new Date(); ago.setMonth(now.getMonth() - 3);
+    const ago = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
     document.getElementById('endDate').value = now.toISOString().split('T')[0];
     document.getElementById('startDate').value = ago.toISOString().split('T')[0];
     applyFilters();
