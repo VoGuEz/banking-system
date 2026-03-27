@@ -159,8 +159,11 @@ public class LoanService {
         };
     }
 
+    // Months per year multiplied by 100 (for percentage-to-decimal conversion): 12 * 100 = 1200
+    private static final BigDecimal ANNUAL_RATE_DIVISOR = new BigDecimal("1200");
+
     private BigDecimal calculateMonthlyPayment(BigDecimal principal, BigDecimal annualRate, int termMonths) {
-        BigDecimal monthlyRate = annualRate.divide(new BigDecimal("1200"), 10, RoundingMode.HALF_UP);
+        BigDecimal monthlyRate = annualRate.divide(ANNUAL_RATE_DIVISOR, 10, RoundingMode.HALF_UP);
         BigDecimal onePlusR = BigDecimal.ONE.add(monthlyRate);
         BigDecimal onePlusRPowN = onePlusR.pow(termMonths);
         BigDecimal numerator = principal.multiply(monthlyRate).multiply(onePlusRPowN);
@@ -168,6 +171,7 @@ public class LoanService {
         return numerator.divide(denominator, 2, RoundingMode.HALF_UP);
     }
 
+    // Runs at midnight on the 1st of every month to credit interest to active savings accounts
     @Scheduled(cron = "0 0 0 1 * *")
     public void applyMonthlyInterest() {
         List<Account> savingsAccounts = accountService.getAllAccounts()
@@ -176,7 +180,7 @@ public class LoanService {
             .toList();
         
         for (Account account : savingsAccounts) {
-            BigDecimal monthlyRate = account.getInterestRate().divide(new BigDecimal("1200"), 10, RoundingMode.HALF_UP);
+            BigDecimal monthlyRate = account.getInterestRate().divide(ANNUAL_RATE_DIVISOR, 10, RoundingMode.HALF_UP);
             BigDecimal interest = account.getBalance().multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
             
             if (interest.compareTo(BigDecimal.ZERO) > 0) {

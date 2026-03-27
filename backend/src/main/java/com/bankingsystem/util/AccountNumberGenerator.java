@@ -1,25 +1,25 @@
 package com.bankingsystem.util;
 
 import org.springframework.stereotype.Component;
-import java.util.Random;
+import java.security.SecureRandom;
+import java.util.UUID;
 
 @Component
 public class AccountNumberGenerator {
 
-    private final Random random = new Random();
+    private final SecureRandom random = new SecureRandom();
 
     public String generate() {
+        // 10-digit account number using SecureRandom for unpredictability
         long accountNumber = 1000000000L + (long)(random.nextDouble() * 9000000000L);
         return String.valueOf(accountNumber);
     }
 
     public String generateLoanNumber() {
-        long loanNumber = 100000L + (long)(random.nextDouble() * 900000L);
-        return "LN" + loanNumber;
+        return "LN" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
     }
 
     public String generateTransactionId() {
-        long txnId = 100000000L + (long)(random.nextDouble() * 900000000L);
-        return "TXN" + txnId;
+        return "TXN" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
     }
 }
