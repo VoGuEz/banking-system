@@ -1,5 +1,7 @@
 package com.bankingsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,18 +38,26 @@ public class Account {
     @Column(nullable = false)
     private AccountStatus status = AccountStatus.ACTIVE;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @JsonProperty("userId")
+    public Long resolveUserId() {
+        return user != null ? user.getId() : null;
+    }
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Loan> loans;
 

@@ -1,5 +1,7 @@
 package com.bankingsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -36,6 +38,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank
     @Column(nullable = false)
     private String password;
@@ -58,6 +61,7 @@ public class User {
 
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Account> accounts;
 

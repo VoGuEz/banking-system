@@ -1,5 +1,6 @@
 package com.bankingsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,6 +46,7 @@ public class Loan {
     @Column(nullable = false)
     private LoanStatus status = LoanStatus.PENDING;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
