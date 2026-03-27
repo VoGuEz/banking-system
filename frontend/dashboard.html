@@ -141,6 +141,7 @@
 
   <!-- Quick Actions -->
   <div class="quick-actions">
+    <button class="quick-action" onclick="openCreateAccountModal()"><span class="qa-icon">➕</span> New Account</button>
     <a href="transactions.html" class="quick-action"><span class="qa-icon">⬇️</span> Deposit</a>
     <a href="transactions.html" class="quick-action"><span class="qa-icon">⬆️</span> Withdraw</a>
     <a href="transfer.html" class="quick-action"><span class="qa-icon">↔️</span> Transfer</a>
@@ -259,6 +260,7 @@
         <div class="empty-state-icon">💳</div>
         <h3>No Accounts</h3>
         <p>You don't have any accounts yet.</p>
+        <button class="btn btn-primary btn-sm mt-3" onclick="openCreateAccountModal()">➕ Create Your First Account</button>
       </div>`;
       return;
     }
@@ -344,6 +346,77 @@
   }
 
   loadDashboard();
+
+  /* ===== CREATE ACCOUNT MODAL ===== */
+  function openCreateAccountModal() {
+    document.getElementById('createAccountModal').style.display = 'flex';
+    clearAlert('createAccountAlert');
+    document.getElementById('createAccountForm').reset();
+  }
+
+  function closeCreateAccountModal() {
+    document.getElementById('createAccountModal').style.display = 'none';
+  }
+
+  document.getElementById('createAccountForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAlert('createAccountAlert');
+
+    const accountType = document.getElementById('newAccountType').value;
+    if (!accountType) {
+      showAlert('createAccountAlert', 'Please select an account type.', 'warning');
+      return;
+    }
+
+    setLoading('createAccountBtn', true, 'Creating...');
+    try {
+      await makeRequest('POST', '/api/accounts', {
+        userId: user.id,
+        accountType: accountType
+      });
+      showAlert('createAccountAlert', 'Account created successfully!', 'success');
+      setTimeout(() => {
+        closeCreateAccountModal();
+        loadDashboard();
+      }, 1000);
+    } catch (err) {
+      showAlert('createAccountAlert', err.message || 'Failed to create account.', 'danger');
+    } finally {
+      setLoading('createAccountBtn', false);
+    }
+  });
 </script>
+
+<!-- Create Account Modal -->
+<div class="modal-overlay" id="createAccountModal" style="display:none;" onclick="if(event.target===this)closeCreateAccountModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">➕ Create New Account</h3>
+      <button class="modal-close" onclick="closeCreateAccountModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="createAccountAlert"></div>
+      <form id="createAccountForm">
+        <div class="form-group">
+          <label class="form-label" for="newAccountType">Account Type <span class="required">*</span></label>
+          <select class="form-control" id="newAccountType" required>
+            <option value="">Select account type</option>
+            <option value="SAVINGS">💰 Savings Account</option>
+            <option value="CHECKING">💳 Checking Account</option>
+            <option value="FIXED_DEPOSIT">🏦 Fixed Deposit</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-top:.5rem;">
+          <div style="padding:1rem;background:var(--bg);border-radius:var(--radius);font-size:.85rem;color:var(--text-secondary);">
+            <strong>ℹ️ Account Info:</strong><br>
+            • A unique account number will be generated automatically.<br>
+            • Starting balance: $0.00 — you can deposit funds after creation.
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="createAccountBtn">Create Account</button>
+      </form>
+    </div>
+  </div>
+</div>
 </body>
 </html>
