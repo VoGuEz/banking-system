@@ -1,6 +1,8 @@
 package com.bankingsystem.controller;
 
+import com.bankingsystem.model.Account;
 import com.bankingsystem.model.Transaction;
+import com.bankingsystem.service.AccountService;
 import com.bankingsystem.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,9 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
+    @Autowired
+    private AccountService accountService;
+
     @PostMapping("/deposit")
     public ResponseEntity<Transaction> deposit(@RequestBody Map<String, Object> body) {
         Long accountId = Long.valueOf(body.get("accountId").toString());
@@ -40,7 +45,15 @@ public class TransactionController {
 
     @PostMapping("/transfer")
     public ResponseEntity<List<Transaction>> transfer(@RequestBody Map<String, Object> body) {
-        String fromAccount = body.get("fromAccountNumber").toString();
+        // Support both fromAccountNumber (string) and fromAccountId (numeric) from frontends
+        String fromAccount;
+        if (body.containsKey("fromAccountNumber")) {
+            fromAccount = body.get("fromAccountNumber").toString();
+        } else {
+            Long fromId = Long.valueOf(body.get("fromAccountId").toString());
+            Account acct = accountService.getAccountById(fromId);
+            fromAccount = acct.getAccountNumber();
+        }
         String toAccount = body.get("toAccountNumber").toString();
         BigDecimal amount = new BigDecimal(body.get("amount").toString());
         String description = (String) body.get("description");

@@ -365,8 +365,8 @@
               <td data-label="Applied">${formatDate(loan.applicationDate || loan.createdAt)}</td>
               <td data-label="Actions">
                 <div class="action-btns">
-                  <button class="btn btn-success btn-sm" onclick="confirmAction('approve', ${loan.id})">✅ Approve</button>
-                  <button class="btn btn-danger btn-sm" onclick="confirmAction('reject', ${loan.id})">❌ Reject</button>
+                  <button class="btn btn-success btn-sm" data-action="approve" data-loan-id="${loan.id}">✅ Approve</button>
+                  <button class="btn btn-danger btn-sm" data-action="reject" data-loan-id="${loan.id}">❌ Reject</button>
                 </div>
               </td>
             </tr>`).join('')}
@@ -459,6 +459,17 @@
   // Close modal on backdrop
   document.getElementById('confirmModal').addEventListener('click', function(e) {
     if (e.target === this) closeConfirmModal();
+  });
+
+  // Event delegation for approve/reject buttons (avoids XSS from inline onclick with interpolated IDs)
+  document.getElementById('pendingLoansContainer').addEventListener('click', function(e) {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const loanId = parseInt(btn.dataset.loanId, 10);
+    if (!isNaN(loanId) && (action === 'approve' || action === 'reject')) {
+      confirmAction(action, loanId);
+    }
   });
 
   // Init
